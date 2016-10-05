@@ -4,17 +4,17 @@
 	<groupId>be.nabu.libs.types</groupId>
 	<artifactId>types-definition-xml</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0-SNAPSHOT</version>
+	<version>${be.nabu.libs.types-types-definition-xml-version}</version>
 	<name>types-definition-xml</name>
 	<url>http://maven.apache.org</url>
+	<parent>
+		<groupId>be.nabu</groupId>
+		<artifactId>core</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<version>2.3.7</version>
-				<extensions>true</extensions>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -28,29 +28,12 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>be.nabu.libs.artifacts</groupId>
-			<artifactId>artifacts-api</artifactId>
-			<version>1.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
 			<groupId>be.nabu.libs.types</groupId>
 			<artifactId>types-definition-api</artifactId>
-			<version>1.0-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>be.nabu.libs.property</groupId>
-			<artifactId>property-api</artifactId>
-			<version>1.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>be.nabu.libs.types</groupId>
-			<artifactId>types-java</artifactId>
-			<version>1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>be.nabu.libs.types</groupId>
 			<artifactId>types-structure</artifactId>
-			<version>1.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>
