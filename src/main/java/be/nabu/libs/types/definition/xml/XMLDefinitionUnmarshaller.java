@@ -151,7 +151,7 @@ public class XMLDefinitionUnmarshaller implements DefinitionUnmarshaller {
 							reference = (ComplexType) typeResolver.resolve(child.getAttribute("definition"));
 						}
 						if (reference == null) {
-							throw new ParseException("Unresolve reference: " + child.getAttribute("definition"), 0);
+							throw new ParseException("Unresolved reference: " + child.getAttribute("definition"), 0);
 						}
 						// all attributes are always set on the element
 						structure.add(new ComplexElementImpl(reference, structure, unmarshalAttributes(child, reference, "definition", "superType", "type").toArray(new Value<?>[0])));	
