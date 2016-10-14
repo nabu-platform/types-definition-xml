@@ -36,6 +36,7 @@ import be.nabu.libs.types.definition.api.DefinitionMarshaller;
 import be.nabu.libs.types.properties.CollectionHandlerProviderProperty;
 import be.nabu.libs.types.properties.EnumerationProperty;
 import be.nabu.libs.types.properties.MaxOccursProperty;
+import be.nabu.libs.types.properties.TemporaryProperty;
 import be.nabu.libs.types.structure.SuperTypeProperty;
 
 /**
@@ -172,7 +173,7 @@ public class XMLDefinitionMarshaller implements DefinitionMarshaller {
 		// Hotfix@2016-08-31: If we are working with a defined type we don't want to include any supertypes it might have as properties, because it is up to the defined type to keep this information
 		// there may be more such properties but in general defined types have very few properties apart from name and namespace which are generally overwritten in the specific element
 		if (type instanceof DefinedType && !isRoot && !resolveDefinitions) {
-			values = blacklist(values, SuperTypeProperty.getInstance());
+			values = blacklist(values, SuperTypeProperty.getInstance(), TemporaryProperty.getInstance());
 		}
 		writeAttributes(rootElement, values);
 		
