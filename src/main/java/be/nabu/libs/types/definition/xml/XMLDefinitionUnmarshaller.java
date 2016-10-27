@@ -34,8 +34,11 @@ import be.nabu.libs.types.base.ComplexElementImpl;
 import be.nabu.libs.types.base.SimpleElementImpl;
 import be.nabu.libs.types.base.ValueImpl;
 import be.nabu.libs.types.definition.api.DefinitionUnmarshaller;
+import be.nabu.libs.types.properties.AttributeQualifiedDefaultProperty;
+import be.nabu.libs.types.properties.ElementQualifiedDefaultProperty;
 import be.nabu.libs.types.properties.EnumerationProperty;
 import be.nabu.libs.types.properties.MaxOccursProperty;
+import be.nabu.libs.types.properties.QualifiedProperty;
 import be.nabu.libs.types.structure.DefinedStructure;
 import be.nabu.libs.types.structure.SimpleStructure;
 import be.nabu.libs.types.structure.Structure;
@@ -226,7 +229,11 @@ public class XMLDefinitionUnmarshaller implements DefinitionUnmarshaller {
 		int count = existingAttributes.size() + 1;
 		while(existingAttributes.size() < count) {
 			count = existingAttributes.size();			
-			for (Property<?> property : type.getSupportedProperties(values.toArray(new Value<?>[0]))) {
+			List<Property<?>> supportedProperties = new ArrayList<Property<?>>(type.getSupportedProperties(values.toArray(new Value<?>[0])));
+			supportedProperties.add(ElementQualifiedDefaultProperty.getInstance());
+			supportedProperties.add(AttributeQualifiedDefaultProperty.getInstance());
+			supportedProperties.add(QualifiedProperty.getInstance());
+			for (Property<?> property : supportedProperties) {
 				if (existingAttributes.contains(property.getName())) {
 					Object value;
 					// need to support "unbounded"
