@@ -36,6 +36,7 @@ import be.nabu.libs.types.definition.api.DefinitionMarshaller;
 import be.nabu.libs.types.properties.CollectionHandlerProviderProperty;
 import be.nabu.libs.types.properties.EnumerationProperty;
 import be.nabu.libs.types.properties.MaxOccursProperty;
+import be.nabu.libs.types.properties.NameProperty;
 import be.nabu.libs.types.properties.TemporaryProperty;
 import be.nabu.libs.types.structure.SuperTypeProperty;
 
@@ -117,6 +118,10 @@ public class XMLDefinitionMarshaller implements DefinitionMarshaller {
 				continue;
 			else if (property.equals(new EnumerationProperty()))
 				continue;
+			// strip leading "@" for attributes
+			if (property.equals(NameProperty.getInstance()) && object.toString().startsWith("@")) {
+				object = object.toString().substring(1);
+			}
 			if (property.equals(new MaxOccursProperty()) && object.equals(0))
 				object = "unbounded";
 			// we need to marshal the property value
