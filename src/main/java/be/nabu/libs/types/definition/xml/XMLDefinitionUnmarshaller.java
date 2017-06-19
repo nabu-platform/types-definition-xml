@@ -48,6 +48,8 @@ public class XMLDefinitionUnmarshaller implements DefinitionUnmarshaller {
 	private Converter converter = ConverterFactory.getInstance().getConverter();
 	private SimpleTypeWrapper simpleTypeWrapper = SimpleTypeWrapperFactory.getInstance().getWrapper();
 	private DefinedTypeResolver typeResolver = DefinedTypeResolverFactory.getInstance().getResolver();
+	private boolean ignoreUnknown;
+	private List<String> ignoredReferences;
 	
 	/**
 	 * If we ever are going to stop circular reference to oneself, we need to know who oneself is...
@@ -101,6 +103,7 @@ public class XMLDefinitionUnmarshaller implements DefinitionUnmarshaller {
 			structure.setSuperType(superType);
 		}
 		structure.setProperty(unmarshalAttributes(document.getDocumentElement(), structure, "superType").toArray(new Value<?>[0]));
+		ignoredReferences = new ArrayList<String>();
 		unmarshal(document.getDocumentElement(), structure);
 		return structure;
 	}
@@ -153,11 +156,16 @@ public class XMLDefinitionUnmarshaller implements DefinitionUnmarshaller {
 						else {
 							reference = (ComplexType) typeResolver.resolve(child.getAttribute("definition"));
 						}
-						if (reference == null) {
+						if (reference == null && !ignoreUnknown) {
 							throw new ParseException("Unresolved reference: " + child.getAttribute("definition"), 0);
 						}
-						// all attributes are always set on the element
-						structure.add(new ComplexElementImpl(reference, structure, unmarshalAttributes(child, reference, "definition", "superType", "type").toArray(new Value<?>[0])));	
+						else if (reference == null) {
+							ignoredReferences.add(child.getAttribute("definition"));
+						}
+						else {
+							// all attributes are always set on the element
+							structure.add(new ComplexElementImpl(reference, structure, unmarshalAttributes(child, reference, "definition", "superType", "type").toArray(new Value<?>[0])));
+						}
 					}
 					else {
 						Structure childStructure = type == null ? new Structure() : new SimpleStructure(type);
@@ -286,4 +294,17 @@ public class XMLDefinitionUnmarshaller implements DefinitionUnmarshaller {
 	public void setTypeResolver(DefinedTypeResolver typeResolver) {
 		this.typeResolver = typeResolver;
 	}
+
+	public boolean isIgnoreUnknown() {
+		return ignoreUnknown;
+	}
+
+	public void setIgnoreUnknown(boolean ignoreUnknown) {
+		this.ignoreUnknown = ignoreUnknown;
+	}
+
+	public List<String> getIgnoredReferences() {
+		return ignoredReferences;
+	}
+	
 }
