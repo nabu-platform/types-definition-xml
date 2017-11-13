@@ -256,7 +256,7 @@ public class XMLDefinitionUnmarshaller implements DefinitionUnmarshaller {
 				}
 			}
 		}
-		if (!existingAttributes.isEmpty()) {
+		if (!existingAttributes.isEmpty() && !ignoreUnknown) {
 			throw new ParseException("Unknown attributes found: " + existingAttributes, 0);
 		}
 		return values;
