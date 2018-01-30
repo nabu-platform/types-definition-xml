@@ -32,6 +32,7 @@ import be.nabu.libs.types.api.MarshalException;
 import be.nabu.libs.types.api.Marshallable;
 import be.nabu.libs.types.api.SimpleType;
 import be.nabu.libs.types.base.ComplexElementImpl;
+import be.nabu.libs.types.base.StringMapCollectionHandlerProvider;
 import be.nabu.libs.types.definition.api.DefinitionMarshaller;
 import be.nabu.libs.types.properties.CollectionHandlerProviderProperty;
 import be.nabu.libs.types.properties.EnumerationProperty;
@@ -139,6 +140,9 @@ public class XMLDefinitionMarshaller implements DefinitionMarshaller {
 				}
 				// this does not need to be persisted
 				else if (property.equals(CollectionHandlerProviderProperty.getInstance())) {
+					if (value.getValue() instanceof StringMapCollectionHandlerProvider) {
+						target.setAttribute(value.getProperty().getName(), "stringMap");
+					}
 					continue;
 				}
 				throw new MarshalException("Could not convert the property " + property.getName() + " to string");

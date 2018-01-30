@@ -32,9 +32,11 @@ import be.nabu.libs.types.api.Type;
 import be.nabu.libs.types.base.AttributeImpl;
 import be.nabu.libs.types.base.ComplexElementImpl;
 import be.nabu.libs.types.base.SimpleElementImpl;
+import be.nabu.libs.types.base.StringMapCollectionHandlerProvider;
 import be.nabu.libs.types.base.ValueImpl;
 import be.nabu.libs.types.definition.api.DefinitionUnmarshaller;
 import be.nabu.libs.types.properties.AttributeQualifiedDefaultProperty;
+import be.nabu.libs.types.properties.CollectionHandlerProviderProperty;
 import be.nabu.libs.types.properties.ElementQualifiedDefaultProperty;
 import be.nabu.libs.types.properties.EnumerationProperty;
 import be.nabu.libs.types.properties.MaxOccursProperty;
@@ -241,12 +243,22 @@ public class XMLDefinitionUnmarshaller implements DefinitionUnmarshaller {
 			supportedProperties.add(ElementQualifiedDefaultProperty.getInstance());
 			supportedProperties.add(AttributeQualifiedDefaultProperty.getInstance());
 			supportedProperties.add(QualifiedProperty.getInstance());
+			supportedProperties.add(CollectionHandlerProviderProperty.getInstance());
 			for (Property<?> property : supportedProperties) {
 				if (existingAttributes.contains(property.getName())) {
 					Object value;
 					// need to support "unbounded"
 					if (MaxOccursProperty.getInstance().equals(property)) {
 						value = element.getAttribute(property.getName()).equals("unbounded") ? 0 : new Integer(element.getAttribute(property.getName()));
+					}
+					else if (CollectionHandlerProviderProperty.getInstance().equals(property)) {
+						String attribute = element.getAttribute(property.getName());
+						if ("stringMap".equals(attribute)) {
+							value = new StringMapCollectionHandlerProvider();
+						}
+						else {
+							throw new ParseException("Unknown collection handler provider", 0);
+						}
 					}
 					else {
 						value = converter.convert(element.getAttribute(property.getName()), property.getValueClass());
