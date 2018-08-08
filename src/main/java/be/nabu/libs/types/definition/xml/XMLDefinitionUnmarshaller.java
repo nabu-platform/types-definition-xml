@@ -26,6 +26,7 @@ import be.nabu.libs.types.SimpleTypeWrapperFactory;
 import be.nabu.libs.types.api.ComplexType;
 import be.nabu.libs.types.api.DefinedTypeResolver;
 import be.nabu.libs.types.api.MarshalException;
+import be.nabu.libs.types.api.ModifiableComplexType;
 import be.nabu.libs.types.api.SimpleType;
 import be.nabu.libs.types.api.SimpleTypeWrapper;
 import be.nabu.libs.types.api.Type;
@@ -77,7 +78,7 @@ public class XMLDefinitionUnmarshaller implements DefinitionUnmarshaller {
 		}
 	}
 	
-	public void unmarshal(InputStream input, Structure structure) throws ParseException, IOException {
+	public void unmarshal(InputStream input, ModifiableComplexType structure) throws ParseException, IOException {
 		try {
 			Document document = toDocument(input);
 			unmarshal(document, structure);
@@ -98,11 +99,11 @@ public class XMLDefinitionUnmarshaller implements DefinitionUnmarshaller {
 		this.idToUnmarshal = idToUnmarshal;
 	}
 
-	protected ComplexType unmarshal(Document document, Structure structure) throws ParseException {	
+	protected ComplexType unmarshal(Document document, ModifiableComplexType structure) throws ParseException {	
 		this.root = structure;
 		Type superType = getSuperType(document.getDocumentElement());
-		if (superType != null) {
-			structure.setSuperType(superType);
+		if (superType != null && structure instanceof Structure) {
+			((Structure) structure).setSuperType(superType);
 		}
 		structure.setProperty(unmarshalAttributes(document.getDocumentElement(), structure, "superType").toArray(new Value<?>[0]));
 		ignoredReferences = new ArrayList<String>();
@@ -127,7 +128,7 @@ public class XMLDefinitionUnmarshaller implements DefinitionUnmarshaller {
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected void unmarshal(Element element, Structure structure) throws ParseException {
+	protected void unmarshal(Element element, ModifiableComplexType structure) throws ParseException {
 		for (int i = 0; i < element.getChildNodes().getLength(); i++) {
 			Node node = element.getChildNodes().item(i);
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
