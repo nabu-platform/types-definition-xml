@@ -120,9 +120,9 @@ public class XMLDefinitionMarshaller implements DefinitionMarshaller {
 			else if (property.equals(new EnumerationProperty()))
 				continue;
 			// strip leading "@" for attributes
-			if (property.equals(NameProperty.getInstance()) && object.toString().startsWith("@")) {
-				object = object.toString().substring(1);
-			}
+//			if (property.equals(NameProperty.getInstance()) && object.toString().startsWith("@")) {
+//				object = object.toString().substring(1);
+//			}
 			if (property.equals(new MaxOccursProperty()) && object.equals(0))
 				object = "unbounded";
 			// we need to marshal the property value

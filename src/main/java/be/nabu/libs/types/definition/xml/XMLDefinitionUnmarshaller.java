@@ -180,6 +180,9 @@ public class XMLDefinitionUnmarshaller implements DefinitionUnmarshaller {
 						unmarshal(child, childStructure);
 					}
 				}
+				else if (type == null) {
+					throw new IllegalStateException("Could not resolve: " + typeName);
+				}
 				else {
 					List<Value<?>> properties = unmarshalAttributes(child, type, "type", "superType");
 					be.nabu.libs.types.api.Element<?> childElement;
