@@ -10,6 +10,8 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -53,6 +55,7 @@ public class XMLDefinitionUnmarshaller implements DefinitionUnmarshaller {
 	private DefinedTypeResolver typeResolver = DefinedTypeResolverFactory.getInstance().getResolver();
 	private boolean ignoreUnknown;
 	private List<String> ignoredReferences;
+	private Logger logger = LoggerFactory.getLogger(getClass());
 	
 	/**
 	 * If we ever are going to stop circular reference to oneself, we need to know who oneself is...
@@ -121,7 +124,8 @@ public class XMLDefinitionUnmarshaller implements DefinitionUnmarshaller {
 				superType = typeResolver.resolve(element.getAttribute("superType"));
 			}
 			if (superType == null) {
-				throw new ParseException("Unresolvable supertype: " + element.getAttribute("superType"), 0);
+//				throw new ParseException("Unresolvable supertype: " + element.getAttribute("superType"), 0);
+				logger.error("Could not resolve supertype: " + element.getAttribute("superType"));
 			}
 		}
 		return superType;
