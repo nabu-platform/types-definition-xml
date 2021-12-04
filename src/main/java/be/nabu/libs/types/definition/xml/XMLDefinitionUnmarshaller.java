@@ -150,7 +150,14 @@ public class XMLDefinitionUnmarshaller implements DefinitionUnmarshaller {
 						}
 					}
 					catch (ClassNotFoundException e) {
-						throw new ParseException("Could not find class: " + e.getMessage(), 0);
+						// if we want to ignore the unknown, we use a string
+						if (ignoreUnknown) {
+							logger.error("Could not resolve referenced simple type: " + typeName);
+							type = simpleTypeWrapper.wrap(String.class);
+						}
+						else {
+							throw new ParseException("Could not find class: " + e.getMessage(), 0);
+						}
 					}
 				}
 				if (child.getNodeName().equals("structure")) {
@@ -167,6 +174,7 @@ public class XMLDefinitionUnmarshaller implements DefinitionUnmarshaller {
 							throw new ParseException("Unresolved reference: " + child.getAttribute("definition"), 0);
 						}
 						else if (reference == null) {
+							logger.error("Could not resolve referenced definition: " + child.getAttribute("definition"));
 							ignoredReferences.add(child.getAttribute("definition"));
 						}
 						else {
