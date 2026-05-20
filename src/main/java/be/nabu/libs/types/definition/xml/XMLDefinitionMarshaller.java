@@ -311,11 +311,48 @@ public class XMLDefinitionMarshaller implements DefinitionMarshaller {
 			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 		if (prettyPrint) {
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-			// as long as the namespace is defined it shouldn't throw an error if not supported but simply ignore this
+			// The JAXP transformer only supports a numeric indentation width, so normalize the serialized XML to tabs afterwards.
 			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 		}
 		transformer.setOutputProperty(OutputKeys.ENCODING, encoding);
-		transformer.transform(new DOMSource(document), new StreamResult(output));
+		java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
+		transformer.transform(new DOMSource(document), new StreamResult(buffer));
+		try {
+			byte[] bytes = prettyPrint
+				? retabIndentation(buffer.toString(encoding)).getBytes(encoding)
+				: buffer.toByteArray();
+			output.write(bytes);
+		}
+		catch (IOException e) {
+			TransformerException wrapped = new TransformerException(e.getMessage());
+			wrapped.initCause(e);
+			throw wrapped;
+		}
+	}
+
+	private static String retabIndentation(String content) {
+		StringBuilder builder = new StringBuilder();
+		String[] lines = content.split("\\r?\\n", -1);
+		for (int i = 0; i < lines.length; i++) {
+			String line = lines[i];
+			int index = 0;
+			while (index < line.length() && line.charAt(index) == ' ') {
+				index++;
+			}
+			int tabs = index / 4;
+			int remainder = index % 4;
+			for (int j = 0; j < tabs; j++) {
+				builder.append('\t');
+			}
+			for (int j = 0; j < remainder; j++) {
+				builder.append(' ');
+			}
+			builder.append(line.substring(index));
+			if (i + 1 < lines.length) {
+				builder.append('\n');
+			}
+		}
+		return builder.toString();
 	}
 
 	protected Element getFirstChild(Node parent) {
