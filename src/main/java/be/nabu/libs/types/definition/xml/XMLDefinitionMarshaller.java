@@ -126,6 +126,27 @@ public class XMLDefinitionMarshaller implements DefinitionMarshaller {
 		return list.toArray(new Value<?>[list.size()]);
 	}
 	
+	protected Value<?> [] getElementProperties(be.nabu.libs.types.api.Element<?> element) {
+		List<Value<?>> list = new ArrayList<Value<?>>();
+		Value<?> [] typeProperties = element.getType().getProperties();
+		for (Value<?> value : element.getProperties()) {
+			if (value.getProperty().equals(NameProperty.getInstance()) || !containsValue(typeProperties, value))
+				list.add(value);
+		}
+		return list.toArray(new Value<?>[list.size()]);
+	}
+	
+	protected boolean containsValue(Value<?> [] values, Value<?> value) {
+		for (Value<?> candidate : values) {
+			if (candidate.getProperty().equals(value.getProperty())) {
+				Object candidateValue = candidate.getValue();
+				Object currentValue = value.getValue();
+				return candidateValue == null ? currentValue == null : candidateValue.equals(currentValue);
+			}
+		}
+		return false;
+	}
+	
 	@SuppressWarnings("rawtypes")
 	protected void writeAttributes(Element target, Value<?>...values) {
 		for (Value<?> value : values) {
@@ -247,15 +268,16 @@ public class XMLDefinitionMarshaller implements DefinitionMarshaller {
 		for (be.nabu.libs.types.api.Element<?> child : type) {
 			// attributes can only be simple types, never complex so don't check here
 			if (child.getType() instanceof ComplexType)
-				serialize(element, (ComplexType) child.getType(), child.getProperties());
+				serialize(element, (ComplexType) child.getType(), getElementProperties(child));
 			else {
 				Element childElement = element.getOwnerDocument().createElement(child instanceof Attribute ? attributeName : simpleName);
-				writeAttributes(childElement, child.getProperties());
+				Value<?> [] elementProperties = getElementProperties(child);
+				writeAttributes(childElement, elementProperties);
 				childElement.setAttribute("type", child.getType() instanceof DefinedSimpleType ? ((DefinedSimpleType) child.getType()).getId() : ((SimpleType<?>) child.getType()).getInstanceClass().getName());
 				// if there is an enumeration, add it now
-				List<?> enumerationValues = (List<?>) ValueUtils.getValue(new EnumerationProperty(), child.getProperties());
+				List<?> enumerationValues = (List<?>) ValueUtils.getValue(new EnumerationProperty(), elementProperties);
 				if (enumerationValues != null && !enumerationValues.isEmpty())
-					writeEnumerations(childElement, (SimpleType<?>) child.getType(), enumerationValues, child.getProperties());
+					writeEnumerations(childElement, (SimpleType<?>) child.getType(), enumerationValues, elementProperties);
 				if (!(child instanceof Attribute))
 					element.appendChild(childElement);
 				// always insert attributes at the top
