@@ -32,6 +32,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import be.nabu.libs.property.ValueUtils;
+import be.nabu.libs.types.base.ComplexElementImpl;
 import be.nabu.libs.types.base.SimpleElementImpl;
 import be.nabu.libs.types.base.ValueImpl;
 import be.nabu.libs.types.properties.CommentProperty;
@@ -41,6 +42,23 @@ import be.nabu.libs.types.properties.NameProperty;
 import be.nabu.libs.types.structure.Structure;
 
 public class XMLDefinitionMarshallerTest {
+
+	@Test
+	public void nestedStructureRetainsNameSharedWithType() throws Exception {
+		Structure root = new Structure();
+		Structure filter = new Structure();
+		filter.setName("filter");
+		filter.add(new SimpleElementImpl<String>("value", new be.nabu.libs.types.simple.String(), filter));
+		root.add(new ComplexElementImpl("filter", filter, root));
+
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		new XMLDefinitionMarshaller().marshal(output, root);
+		Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(output.toByteArray()));
+
+		NodeList structures = document.getElementsByTagName("structure");
+		assertEquals(2, structures.getLength());
+		assertEquals("filter", ((Element) structures.item(1)).getAttribute("name"));
+	}
 
 	@Test
 	public void inheritedElementPropertiesAreNotSerializedButLocalPropertiesAre() throws Exception {
